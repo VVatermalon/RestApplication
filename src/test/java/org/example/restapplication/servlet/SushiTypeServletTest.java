@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 import java.util.UUID;
@@ -181,7 +182,7 @@ class SushiTypeServletTest {
         verify(request).getParameter(TYPE_NAME);
         verify(request).getParameter(TYPE_ID);
         verify(service, times(1)).update(any());
-        verify(response, times(1)).sendError(HttpServletResponse.SC_NOT_FOUND);
+        verify(response, times(1)).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
     @Test
     void doPutOk() throws IOException, ServiceException {
@@ -230,7 +231,7 @@ class SushiTypeServletTest {
     @Test
     void doDeleteServiceException() throws IOException, ServiceException {
         when(request.getParameter(TYPE_ID)).thenReturn(UUID_DEFAULT);
-        ServiceException exception = new ServiceException(new DaoException());
+        ServiceException exception = new ServiceException(new DaoException(new SQLException()));
         when(service.delete(UUID.fromString(UUID_DEFAULT))).thenThrow(exception);
 
         servlet.doDelete(request, response);
@@ -242,15 +243,14 @@ class SushiTypeServletTest {
     @Test
     void doDeleteServiceExceptionConstraint() throws IOException, ServiceException {
         when(request.getParameter(TYPE_ID)).thenReturn(UUID_DEFAULT);
-        ServiceException exception = new ServiceException(new SQLIntegrityConstraintViolationException());
+        ServiceException exception = new ServiceException(new DaoException(new SQLIntegrityConstraintViolationException()));
         when(service.delete(UUID.fromString(UUID_DEFAULT))).thenThrow(exception);
 
         servlet.doDelete(request, response);
 
         verify(request).getParameter(TYPE_ID);
         verify(service, times(1)).delete(UUID.fromString(UUID_DEFAULT));
-        verify(response, times(1)).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        verify(response, times(1)).setHeader("error_message","Cannot delete category: SQLIntegrityConstraintViolationException");
+        verify(response, times(1)).sendError(HttpServletResponse.SC_CONFLICT);
     }
     @Test
     void doDeleteOk() throws IOException, ServiceException {

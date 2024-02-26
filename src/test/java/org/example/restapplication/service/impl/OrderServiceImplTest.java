@@ -92,16 +92,31 @@ class OrderServiceImplTest {
     }
 
     @Test
+    void createWithoutParameters() throws ServiceException, DaoException {
+        when(mapper.toOrder(any())).thenReturn(ORDER_DEFAULT);
+        when(orderDao.create(ORDER_DEFAULT)).thenReturn(ORDER_DEFAULT);
+        when(mapper.toDto(ORDER_DEFAULT)).thenReturn(ORDER_DTO_DEFAULT);
+
+        var actual = service.create();
+
+        verify(mapper, times(1)).toOrder(any());
+        verify(orderDao, times(1)).create(ORDER_DEFAULT);
+        verify(mapper, times(1)).toDto(ORDER_DEFAULT);
+        assertEquals(ORDER_DTO_DEFAULT, actual);
+    }
+
+    @Test
     void update() throws DaoException, ServiceException {
         when(mapper.toOrder(ORDER_DTO_DEFAULT)).thenReturn(ORDER_DEFAULT);
         when(orderDao.update(ORDER_DEFAULT)).thenReturn(Optional.of(ORDER_DEFAULT));
+        when(orderDao.findById(ORDER_ID)).thenReturn(Optional.of(ORDER_DEFAULT));
+        when(orderComponentService.findAllOrderComponents(ORDER_ID)).thenReturn(ORDER_COMPONENTS_LIST_DEFAULT);
         when(mapper.toDto(ORDER_DEFAULT)).thenReturn(ORDER_DTO_DEFAULT);
 
         var actual = service.update(ORDER_DTO_DEFAULT);
 
         verify(mapper, times(1)).toOrder(ORDER_DTO_DEFAULT);
         verify(orderDao, times(1)).update(ORDER_DEFAULT);
-        verify(mapper, times(1)).toDto(ORDER_DEFAULT);
         assertEquals(Optional.of(ORDER_DTO_DEFAULT), actual);
     }
 

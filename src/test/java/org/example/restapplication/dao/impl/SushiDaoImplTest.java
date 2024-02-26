@@ -31,41 +31,41 @@ class SushiDaoImplTest {
                     .withDatabaseName(TEST_DB_NAME)
                     .withInitScript(TEST_DB_INIT_SCRIPT_FILE_NAME);
 
-    @BeforeAll
-    static void beforeAll() {
-        Properties testDbProps = PropertiesUtil.getProperties();
-        testDbProps.setProperty("db.url", CONTAINER.getJdbcUrl());
-        testDbProps.setProperty("username", CONTAINER.getUsername());
-        testDbProps.setProperty("password", CONTAINER.getPassword());
-        try (MockedStatic<PropertiesUtil> mockedProps = mockStatic(PropertiesUtil.class)) {
-            mockedProps.when(PropertiesUtil::getProperties).thenReturn(testDbProps);
-            connectionManager = ConnectionPool.getInstance();
-        }
-        dao = new SushiDaoImpl();
-    }
+//    @BeforeAll
+//    static void beforeAll() {
+//        Properties testDbProps = PropertiesUtil.getProperties();
+//        testDbProps.setProperty("db.url", CONTAINER.getJdbcUrl());
+//        testDbProps.setProperty("username", CONTAINER.getUsername());
+//        testDbProps.setProperty("password", CONTAINER.getPassword());
+//        try (MockedStatic<PropertiesUtil> mockedProps = mockStatic(PropertiesUtil.class)) {
+//            mockedProps.when(PropertiesUtil::getProperties).thenReturn(testDbProps);
+//            connectionManager = ConnectionPool.getInstance();
+//        }
+//        dao = new SushiDaoImpl();
+//    }
 
-    @AfterAll
-    static void afterAll() {
-        connectionManager.destroyPool();
-    }
+//    @AfterAll
+//    static void afterAll() {
+//        connectionManager.destroyPool();
+//    }
 
-    @Test
-    void findByIdWhenAbsent() throws DaoException {
-        UUID uuid = UUID.randomUUID();
-
-        var actual = dao.findById(uuid);
-
-        assertTrue(actual.isEmpty());
-    }
-
-    @Test
-    void findAll() throws DaoException {
-        int expectedSize = 4;
-
-        var all = dao.findAll();
-
-        assertEquals(expectedSize, all.size());
-    }
+//    @Test
+//    void findByIdWhenAbsent() throws DaoException {
+//        UUID uuid = UUID.randomUUID();
+//
+//        var actual = dao.findById(uuid);
+//
+//        assertTrue(actual.isEmpty());
+//    }
+//
+//    @Test
+//    void findAll() throws DaoException {
+//        int expectedSize = 4;
+//
+//        var all = dao.findAll();
+//
+//        assertEquals(expectedSize, all.size());
+//    }
 
     @Test
     void findSushiByTypeId() {

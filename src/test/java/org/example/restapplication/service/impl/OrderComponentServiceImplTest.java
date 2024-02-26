@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -118,5 +119,19 @@ class OrderComponentServiceImplTest {
         verify(orderComponentDao, times(1)).update(ORDER_COMPONENT_DEFAULT);
         verify(mapper, times(1)).toDto(ORDER_COMPONENT_DEFAULT);
         assertEquals(Optional.of(ORDER_COMPONENT_DTO_DEFAULT), actual);
+    }
+
+    @Test
+    void findById() {
+        assertThrows(ServiceException.class, () -> {
+            service.findById(UUID.randomUUID());
+        });
+    }
+
+    @Test
+    void testDelete() {
+        assertThrows(ServiceException.class, () -> {
+            service.delete(UUID.randomUUID());
+        });
     }
 }
