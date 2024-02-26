@@ -16,7 +16,7 @@ public enum SushiTypeMapperImpl implements SimpleResultSetMapper<SushiType> {
     public SushiType map(ResultSet resultSet) throws DaoException {
         SushiType type;
         try {
-            UUID id = resultSet.getObject(ID_LABEL, UUID.class);
+            UUID id = UUID.fromString(resultSet.getObject(ID_LABEL, String.class));
             String name = resultSet.getString(NAME_LABEL);
             type = new SushiType(id, name);
         } catch (SQLException e) {

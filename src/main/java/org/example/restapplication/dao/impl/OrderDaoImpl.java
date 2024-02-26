@@ -11,11 +11,9 @@ import org.example.restapplication.exception.DaoException;
 import org.example.restapplication.model.Order;
 import org.example.restapplication.model.OrderComponent;
 
+import java.math.BigDecimal;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class OrderDaoImpl extends OrderDao {
     private static final String SQL_SELECT_ALL_ORDERS = """
@@ -27,7 +25,7 @@ public class OrderDaoImpl extends OrderDao {
     private static final String SQL_DELETE = """
     DELETE FROM orders WHERE order_id = ?""";
     private static final String SQL_CREATE = """
-    INSERT INTO orders(order_id, status, total_price) VALUES (uuid(),?,?)""";
+    INSERT INTO orders(order_id, status, total_price) VALUES (?,?,?)""";
     private static final String SQL_UPDATE = """
     UPDATE orders SET status = ? WHERE order_id = ?""";
     private final ConnectionManager manager = ConnectionPool.getInstance();
@@ -108,16 +106,17 @@ public class OrderDaoImpl extends OrderDao {
         Connection connection = null;
         try {
             connection = manager.getConnection();
-            try (PreparedStatement statement = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS)) {
-                statement.setString(1, entity.getStatus().toString());
-                try (ResultSet keys = statement.getGeneratedKeys()) {
-                    keys.next();
-                    UUID generatedId = UUID.fromString(keys.getString(1));
-                    entity.setId(generatedId);
-                    return entity;
+            try (PreparedStatement statement = connection.prepareStatement(SQL_CREATE)) {
+                UUID newId = UUID.randomUUID();
+                statement.setString(1, newId.toString());
+                statement.setString(2, entity.getStatus().toString());
+                statement.setBigDecimal(3, BigDecimal.ZERO);
+                if(statement.executeUpdate()==0) {
+                    throw new DaoException("Error during creation of SushiType");
                 }
+                return findById(newId).get();
             }
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchElementException e) {
             throw new DaoException(e);
         } finally {
             ConnectionUtil.close(connection);

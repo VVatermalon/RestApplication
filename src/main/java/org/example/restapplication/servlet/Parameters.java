@@ -1,7 +1,7 @@
 package org.example.restapplication.servlet;
 
 public final class Parameters {
-    public static final String JSON_TYPE = "application/json";
+    public static final String JSON_TYPE = "application/json; charset=UTF-8";
     public static final String SUSHI_ID = "sushi_id";
     public static final String SUSHI_NAME = "sushi_name";
     public static final String TYPE_ID = "type_id";

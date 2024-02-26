@@ -3,14 +3,14 @@ CREATE DATABASE rest_project;
 
 USE rest_project;
 
-create table sushi_type (
-                            type_id char(36) primary key,
-                            type_name varchar(50) not null);
+ccreate table sushi_type (
+type_id char(36) primary key,
+type_name varchar(50) not null);
 
 create table sushi (
                        sushi_id char(36) primary key,
                        sushi_name varchar(50) not null,
-                       price decimal(3, 2) not null,
+                       price decimal(5, 2) not null,
                        description varchar(1000) not null,
                        type_id char(36) not null,
                        foreign key (type_id) references sushi_type(type_id));
@@ -18,7 +18,7 @@ create table sushi (
 create table orders (
                         order_id char(36) primary key,
                         status enum('in_process', 'need_confirmation', 'confirmed', 'cancelled') not null,
-                        total_price decimal(4,2) not null);
+                        total_price decimal(6,2) not null);
 
 create table order_component (
                                  order_id char(36),
@@ -27,6 +27,25 @@ create table order_component (
                                  foreign key (order_id) references orders(order_id),
                                  foreign key (sushi_id) references sushi(sushi_id),
                                  PRIMARY KEY (order_id, sushi_id));
+
+DELIMITER //
+
+CREATE PROCEDURE calculate_new_total_price(IN in_order_id CHAR(36))
+BEGIN
+    DECLARE total DECIMAL(6, 2);
+
+    -- Вычисляем итоговую стоимость для данного заказа
+SELECT IFNULL(SUM(s.price * oc.amount), 0) INTO total
+FROM orders o
+         LEFT JOIN order_component oc ON o.order_id = oc.order_id
+         LEFT JOIN sushi s ON oc.sushi_id = s.sushi_id
+WHERE o.order_id = in_order_id;
+
+-- Обновляем поле total_price в таблице orders
+UPDATE orders SET total_price = total WHERE order_id = in_order_id;
+END//
+
+DELIMITER ;
 
 INSERT INTO sushi_type VALUES
                            ("4b74fe5d-7491-47c8-9dd0-5035d30ae020", "Маки"),

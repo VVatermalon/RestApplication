@@ -14,13 +14,13 @@ public enum OrderMapperImpl implements SimpleResultSetMapper<Order> {
 
     private static final String ID_LABEL = "order_id";
     private static final String STATUS_LABEL = "status";
-    private static final String PRICE_LABEL = "price";
+    private static final String PRICE_LABEL = "total_price";
 
     public Order map(ResultSet resultSet) throws DaoException {
         Order order;
         try {
-            UUID id = resultSet.getObject(ID_LABEL, UUID.class);
-            String statusStr = resultSet.getString(STATUS_LABEL).trim();
+            UUID id = UUID.fromString(resultSet.getObject(ID_LABEL, String.class));
+            String statusStr = resultSet.getString(STATUS_LABEL).toUpperCase().trim();
             BigDecimal totalPrice = resultSet.getBigDecimal(PRICE_LABEL);
             Order.OrderStatus status = Order.OrderStatus.valueOf(statusStr);
             order = new Order(id, status, totalPrice);

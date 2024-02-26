@@ -14,24 +14,24 @@ import java.util.*;
 
 public class OrderComponentDaoImpl extends OrderComponentDao {
     private static final String SQL_SELECT_ALL_ORDER_COMPONENTS = """
-    SELECT O.order_id, O.status, O.total_price, 
-    S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name
-    C.amount, C.order_component_id
-    FROM order_component C JOIN orders O ON C.order_id = O.order_id
-    JOIN sushi S ON C.sushi_id = S.sushi_id
-    JOIN sushi_type T ON S.type_id = T.type_id""";
+        SELECT O.order_id, O.status, O.total_price,
+        S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name,
+        C.amount
+        FROM order_component C JOIN orders O ON C.order_id = O.order_id
+        JOIN sushi S ON C.sushi_id = S.sushi_id
+        JOIN sushi_type T ON S.type_id = T.type_id""";
     private static final String SQL_SELECT_ORDER_COMPONENT_BY_ORDER_ID = """
     SELECT O.order_id, O.status, O.total_price, 
-    S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name
-    C.amount, C.order_component_id
+    S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name,
+    C.amount
     FROM order_component C JOIN orders O ON C.order_id = O.order_id
     JOIN sushi S ON C.sushi_id = S.sushi_id
     JOIN sushi_type T ON S.type_id = T.type_id
     WHERE O.order_id = ?""";
     private static final String SQL_SELECT_ORDER_COMPONENT_BY_ORDER_ID_SUSHI_ID = """
     SELECT O.order_id, O.status, O.total_price, 
-    S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name
-    C.amount, C.order_component_id
+    S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name,
+    C.amount
     FROM order_component C JOIN orders O ON C.order_id = O.order_id
     JOIN sushi S ON C.sushi_id = S.sushi_id
     JOIN sushi_type T ON S.type_id = T.type_id
@@ -159,14 +159,12 @@ public class OrderComponentDaoImpl extends OrderComponentDao {
                 deleteStatement.setString(1, orderId.toString());
                 deleteStatement.setString(2, component.getSushi().getId().toString());
                 if (deleteStatement.executeUpdate() == 0) {
-                    connection.rollback();
+                    ConnectionUtil.rollback(connection);
                     throw new DaoException();
                 }
             }
         } catch (SQLException e) {
             throw new DaoException(e);
-        } finally {
-            ConnectionUtil.close(connection);
         }
     }
 

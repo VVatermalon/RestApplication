@@ -45,13 +45,13 @@ public class OrderServlet extends HttpServlet {
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                     return;
                 }
-                resp.getWriter().write(jsonMapper.toJson(orderOptional.get()));
                 resp.setContentType(JSON_TYPE);
+                resp.getWriter().write(jsonMapper.toJson(orderOptional.get()));
                 resp.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
-            resp.getWriter().write(jsonMapper.toJson(service.findAll()));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(service.findAll()));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -75,8 +75,8 @@ public class OrderServlet extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            resp.getWriter().write(jsonMapper.toJson(saved.get()));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(saved.get()));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -98,8 +98,8 @@ public class OrderServlet extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            resp.getWriter().write(jsonMapper.toJson(deleted.get()));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(deleted.get()));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);

@@ -10,10 +10,7 @@ import org.example.restapplication.exception.DaoException;
 import org.example.restapplication.model.SushiType;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class SushiTypeDaoImpl extends SushiTypeDao {
     private static final String SQL_SELECT_ALL_TYPES = """
@@ -26,7 +23,7 @@ public class SushiTypeDaoImpl extends SushiTypeDao {
     private static final String SQL_DELETE = """
         DELETE FROM sushi_type WHERE type_id = ?""";
     private static final String SQL_CREATE = """
-        INSERT INTO sushi_type(type_id, type_name) VALUES (uuid(),?)""";
+        INSERT INTO sushi_type(type_id, type_name) VALUES (?,?)""";
     private static final String SQL_UPDATE = """
         UPDATE sushi_type SET type_name = ? WHERE type_id = ?""";
     private final ConnectionManager manager = ConnectionPool.getInstance();
@@ -101,16 +98,16 @@ public class SushiTypeDaoImpl extends SushiTypeDao {
         Connection connection = null;
         try {
             connection = manager.getConnection();
-            try (PreparedStatement statement = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS)) {
-                statement.setString(1, entity.getName());
-                try (ResultSet keys = statement.getGeneratedKeys()) {
-                    keys.next();
-                    UUID generatedId = UUID.fromString(keys.getString(1));
-                    entity.setId(generatedId);
-                    return entity;
+            try (PreparedStatement statement = connection.prepareStatement(SQL_CREATE)) {
+                UUID newId = UUID.randomUUID();
+                statement.setString(1, newId.toString());
+                statement.setString(2, entity.getName());
+                if(statement.executeUpdate()==0) {
+                    throw new DaoException("Error during creation of SushiType");
                 }
+                return findById(newId).get();
             }
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchElementException e) {
             throw new DaoException(e);
         } finally {
             ConnectionUtil.close(connection);

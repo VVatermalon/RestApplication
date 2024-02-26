@@ -10,10 +10,7 @@ import org.example.restapplication.model.Sushi;
 import org.example.restapplication.dao.SushiDao;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class SushiDaoImpl extends SushiDao {
     private static final String SQL_SELECT_ALL_SUSHI = """
@@ -30,7 +27,7 @@ public class SushiDaoImpl extends SushiDao {
     private static final String SQL_DELETE = """
         DELETE FROM sushi WHERE sushi_id = ?""";
     private static final String SQL_CREATE = """
-        INSERT INTO sushi(sushi_id, sushi_name, price, description, type_id) VALUES (uuid(), ?,?,?,?)""";
+        INSERT INTO sushi(sushi_id, sushi_name, price, description, type_id) VALUES (?, ?,?,?,?)""";
     private static final String SQL_UPDATE = """
         UPDATE sushi SET sushi_name = ?, price = ?, description = ?, type_id = ? WHERE sushi_id = ?""";
     private final ConnectionManager manager = ConnectionPool.getInstance();
@@ -86,7 +83,7 @@ public class SushiDaoImpl extends SushiDao {
             try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_SUSHI_BY_TYPE_ID)) {
                 statement.setString(1, id.toString());
                 try (ResultSet resultSet = statement.executeQuery()) {
-                    if (resultSet.next()) {
+                    while (resultSet.next()) {
                         Sushi sushi = mapper.map(resultSet);
                         sushiList.add(sushi);
                     }
@@ -127,19 +124,19 @@ public class SushiDaoImpl extends SushiDao {
         Connection connection = null;
         try {
             connection = manager.getConnection();
-            try (PreparedStatement statement = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS)) {
-                statement.setString(1, entity.getName());
-                statement.setBigDecimal(2, entity.getPrice());
-                statement.setString(3, entity.getDescription());
-                statement.setString(4, entity.getType().getId().toString());
-                try (ResultSet keys = statement.getGeneratedKeys()) {
-                    keys.next();
-                    UUID generatedId = UUID.fromString(keys.getString(1));
-                    entity.setId(generatedId);
-                    return entity;
+            try (PreparedStatement statement = connection.prepareStatement(SQL_CREATE)) {
+                UUID newId = UUID.randomUUID();
+                statement.setString(1, newId.toString());
+                statement.setString(2, entity.getName());
+                statement.setBigDecimal(3, entity.getPrice());
+                statement.setString(4, entity.getDescription());
+                statement.setString(5, entity.getType().getId().toString());
+                if(statement.executeUpdate()==0) {
+                    throw new DaoException("Error during creation of Sushi");
                 }
+                return findById(newId).get();
             }
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchElementException e) {
             throw new DaoException(e);
         } finally {
             ConnectionUtil.close(connection);

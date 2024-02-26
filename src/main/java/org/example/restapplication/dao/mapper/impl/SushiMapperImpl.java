@@ -20,7 +20,7 @@ public enum SushiMapperImpl implements SimpleResultSetMapper<Sushi> {
     public Sushi map(ResultSet resultSet) throws DaoException {
         Sushi sushi;
         try {
-            UUID id = resultSet.getObject(ID_LABEL, UUID.class);
+            UUID id = UUID.fromString(resultSet.getObject(ID_LABEL, String.class));
             String name = resultSet.getString(NAME_LABEL);
             BigDecimal price = resultSet.getBigDecimal(PRICE_LABEL);
             String description = resultSet.getString(DESCRIPTION_LABEL);

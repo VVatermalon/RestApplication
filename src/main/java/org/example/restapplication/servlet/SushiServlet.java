@@ -50,21 +50,21 @@ public class SushiServlet extends HttpServlet {
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                     return;
                 }
-                resp.getWriter().write(jsonMapper.toJson(sushiOptional.get()));
                 resp.setContentType(JSON_TYPE);
+                resp.getWriter().write(jsonMapper.toJson(sushiOptional.get()));
                 resp.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
             if (type != null) {
                 UUID uuid = UUID.fromString(type);
                 var sushiList = service.findByType(uuid);
-                resp.getWriter().write(jsonMapper.toJson(sushiList));
                 resp.setContentType(JSON_TYPE);
+                resp.getWriter().write(jsonMapper.toJson(sushiList));
                 resp.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
-            resp.getWriter().write(jsonMapper.toJson(service.findAll()));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(service.findAll()));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -87,8 +87,8 @@ public class SushiServlet extends HttpServlet {
             BigDecimal price = new BigDecimal(priceParam);
             var type = typeService.findById(typeId);
             var saved = service.create(new SushiDto(name, type.get(), price, description));
-            resp.getWriter().write(jsonMapper.toJson(saved));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(saved));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -115,8 +115,8 @@ public class SushiServlet extends HttpServlet {
             BigDecimal price = new BigDecimal(priceParam);
             var type = typeService.findById(typeId);
             var saved = service.update(new SushiDto(id, name, type.get(), price, description));
-            resp.getWriter().write(jsonMapper.toJson(saved.get()));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(saved.get()));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -140,8 +140,8 @@ public class SushiServlet extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            resp.getWriter().write(jsonMapper.toJson(deleted.get()));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(deleted.get()));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);

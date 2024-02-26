@@ -61,13 +61,13 @@ public class OrderComponentServlet extends HttpServlet {
         try {
             if (id != null) {
                 UUID uuid = UUID.fromString(id);
-                resp.getWriter().write(jsonMapper.toJson(orderComponentService.findAllOrderComponents(uuid)));
                 resp.setContentType(JSON_TYPE);
+                resp.getWriter().write(jsonMapper.toJson(orderComponentService.findAllOrderComponents(uuid)));
                 resp.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
-            resp.getWriter().write(jsonMapper.toJson(orderComponentService.findAll()));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(orderComponentService.findAll()));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -97,12 +97,11 @@ public class OrderComponentServlet extends HttpServlet {
             SushiDto sushi = sushiService.findById(sushiId).get();
             if(orderComponentService.findByOrderIdSushiId(order.getId(), sushiId).isPresent()) {
                 resp.sendError(HttpServletResponse.SC_CONFLICT);
-                resp.addHeader("ERROR_MESSAGE", "order component already exists");
                 return;
             }
             OrderComponentDto saved = orderComponentService.create(new OrderComponentDto(order, sushi, amount));
-            resp.getWriter().write(jsonMapper.toJson(saved));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(saved));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -134,8 +133,8 @@ public class OrderComponentServlet extends HttpServlet {
                 return;
             }
             OrderComponentDto saved = updated.get();
-            resp.getWriter().write(jsonMapper.toJson(saved));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(saved));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -162,8 +161,8 @@ public class OrderComponentServlet extends HttpServlet {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            resp.getWriter().write(jsonMapper.toJson(deleted.get()));
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonMapper.toJson(deleted.get()));
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);

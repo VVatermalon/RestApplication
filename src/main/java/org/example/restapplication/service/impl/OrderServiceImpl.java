@@ -87,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
     public Optional<OrderDto> update(OrderDto dto) throws ServiceException {
         Order order = mapper.toOrder(dto);
         try {
-            return orderDao.update(order).map(mapper::toDto);
+            return orderDao.update(order).isPresent()?findById(dto.getId()):Optional.empty();
         } catch (DaoException e) {
             throw new ServiceException(e);
         }
@@ -96,12 +96,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Optional<OrderDto> delete(UUID id) throws ServiceException {
         try {
-            Optional<Order> found = orderDao.findById(id);
+            Optional<OrderDto> found = findById(id);
             if (found.isEmpty()) {
                 return Optional.empty();
             }
-            Order order = found.get();
-            return orderDao.delete(order.getId()).map(mapper::toDto);
+            OrderDto order = found.get();
+            return orderDao.delete(order.getId()).isPresent() ? found : Optional.empty();
         } catch (DaoException e) {
             throw new ServiceException(e);
         }

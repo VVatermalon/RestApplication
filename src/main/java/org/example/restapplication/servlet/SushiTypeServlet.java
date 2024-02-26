@@ -55,14 +55,14 @@ public class SushiTypeServlet extends HttpServlet {
                     return;
                 }
                 jsonResponse = jsonMapper.toJson(sushiOptional.get());
-                resp.getWriter().write(jsonResponse);
                 resp.setContentType(JSON_TYPE);
+                resp.getWriter().write(jsonResponse);
                 resp.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
             jsonResponse = jsonMapper.toJson(service.findAll());
-            resp.getWriter().write(jsonResponse);
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonResponse);
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -82,8 +82,8 @@ public class SushiTypeServlet extends HttpServlet {
             }
             var saved = service.create(new SushiTypeDto(name));
             jsonResponse = jsonMapper.toJson(saved);
-            resp.getWriter().write(jsonResponse);
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonResponse);
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (JsonProcessingException | ServiceException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -107,8 +107,8 @@ public class SushiTypeServlet extends HttpServlet {
                 return;
             }
             jsonResponse = jsonMapper.toJson(saved.get());
-            resp.getWriter().write(jsonResponse);
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonResponse);
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -133,16 +133,18 @@ public class SushiTypeServlet extends HttpServlet {
                 return;
             }
             jsonResponse = jsonMapper.toJson(deleted.get());
-            resp.getWriter().write(jsonResponse);
             resp.setContentType(JSON_TYPE);
+            resp.getWriter().write(jsonResponse);
             resp.setStatus(HttpServletResponse.SC_OK);
         } catch (IllegalArgumentException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         } catch (JsonProcessingException | ServiceException e) {
-            if(e.getCause().getClass().equals(SQLIntegrityConstraintViolationException.class)) {
-                resp.setHeader("error_message","Cannot delete category: SQLIntegrityConstraintViolationException");
+            if(e.getCause().getCause().getClass().equals(SQLIntegrityConstraintViolationException.class)) {
+                resp.sendError(HttpServletResponse.SC_CONFLICT);
             }
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            else {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
     }
 
