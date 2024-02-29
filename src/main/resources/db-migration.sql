@@ -3,7 +3,7 @@ CREATE DATABASE rest_project;
 
 USE rest_project;
 
-ccreate table sushi_type (
+create table sushi_type (
 type_id char(36) primary key,
 type_name varchar(50) not null);
 
@@ -28,8 +28,6 @@ create table order_component (
                                  foreign key (sushi_id) references sushi(sushi_id),
                                  PRIMARY KEY (order_id, sushi_id));
 
-DELIMITER //
-
 CREATE PROCEDURE calculate_new_total_price(IN in_order_id CHAR(36))
 BEGIN
     DECLARE total DECIMAL(6, 2);
@@ -43,9 +41,7 @@ WHERE o.order_id = in_order_id;
 
 -- Обновляем поле total_price в таблице orders
 UPDATE orders SET total_price = total WHERE order_id = in_order_id;
-END//
-
-DELIMITER ;
+END;
 
 INSERT INTO sushi_type VALUES
                            ("4b74fe5d-7491-47c8-9dd0-5035d30ae020", "Маки"),
@@ -63,6 +59,7 @@ INSERT INTO sushi VALUES
 INSERT INTO orders VALUES
                        ("843a81b1-b0fe-4ec4-8505-bcf264fefef1", 'in_process', 11.90),
                        ("183517ea-114d-43db-a782-ca22e7addc6f", 'in_process', 50.60),
+                       ("567846ea-114d-43db-a782-ca22e7addc6f", 'in_process', 0),
                        ("a20315f4-2fe2-4dca-b69c-a8ad9e298b46", 'in_process', 36.70);
 
 INSERT INTO order_component VALUES
@@ -70,4 +67,4 @@ INSERT INTO order_component VALUES
                                 ("183517ea-114d-43db-a782-ca22e7addc6f", "e6f1aa53-9e59-4c33-a804-a7885bd40996", 1),
                                 ("183517ea-114d-43db-a782-ca22e7addc6f", "49dd0b88-641c-4fe0-bd21-57b1ac78a0bd", 2),
                                 ("a20315f4-2fe2-4dca-b69c-a8ad9e298b46", "e6f1aa53-9e59-4c33-a804-a7885bd40996", 1),
-                                ("75e04e8e-7ca3-4402-837c-e97217d70f9d", "209d1668-606a-4066-a43a-99260f878535", 1);
+                                ("a20315f4-2fe2-4dca-b69c-a8ad9e298b46", "75e04e8e-7ca3-4402-837c-e97217d70f9d", 1);

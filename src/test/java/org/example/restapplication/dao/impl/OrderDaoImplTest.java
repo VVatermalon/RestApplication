@@ -1,41 +1,33 @@
 package org.example.restapplication.dao.impl;
 
-import org.example.restapplication.dao.SushiDao;
-import org.example.restapplication.db.ConnectionManager;
+import org.example.restapplication.dao.OrderComponentDao;
+import org.example.restapplication.dao.OrderDao;
 import org.example.restapplication.db.ConnectionPool;
 import org.example.restapplication.db.PropertiesUtil;
 import org.example.restapplication.exception.DaoException;
-import org.example.restapplication.model.Sushi;
-import org.example.restapplication.model.SushiType;
+import org.example.restapplication.model.Order;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 
 import java.math.BigDecimal;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Properties;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class SushiDaoImplTest {
+class OrderDaoImplTest {
     private static final String TEST_DB_NAME = "rest_project";
     private static final String TEST_DB_INIT_SCRIPT_FILE_NAME = "db-migration.sql";
     private static final String IMAGE_NAME = "mysql:8.0";
-    private static final Sushi SUSHI = new Sushi(UUID.fromString("e6f1aa53-9e59-4c33-a804-a7885bd40996"), "Ролл с лососем и авокадо",
-            new SushiType(UUID.fromString("f07ab70b-6caa-45fe-b1a5-0a12a2969d66"), "Урамаки"), new BigDecimal("20.40"), "Лосось свежий, сыр творожный, авокадо");
-    private static final Sushi SUSHI_NO_UPDATE = new Sushi(UUID.fromString("49dd0b88-641c-4fe0-bd21-57b1ac78a0bd"), "Яки тай маки",
-            new SushiType(UUID.fromString("75e04e8e-7ca3-4402-837c-e97217d70f9d"), "Запеченные роллы"), new BigDecimal("13.40"), "Окунь жареный, творожный сыр, помидор, маринованный редис Такуан, сыр Джугас, майонез, соус Терияки, японский омлет");
-
-    private static final Sushi SUSHI_UPDATE = new Sushi(UUID.fromString("e6f1aa53-9e59-4c33-a804-a7885bd40996"), "Вкусный ролл",
-            new SushiType(UUID.fromString("f07ab70b-6caa-45fe-b1a5-0a12a2969d66"), "Урамаки"), new BigDecimal("20.40"), "Лосось свежий, сыр творожный, авокадо");
-    private static final Sushi SUSHI_WITHOUT_ORDERS = new Sushi(UUID.fromString("209d1668-606a-4066-a43a-99260f878535"), "Токио маки",
-            new SushiType(UUID.fromString("f07ab70b-6caa-45fe-b1a5-0a12a2969d66"), "Урамаки"), new BigDecimal("22.60"), "Креветка тигровая, творожный сыр, помидор, авокадо, икра летучей рыбы красная");
-
+    private static final Order ORDER = new Order(UUID.fromString("843a81b1-b0fe-4ec4-8505-bcf264fefef1"), Order.OrderStatus.IN_PROCESS, new BigDecimal("11.90"));
+    private static final Order ORDER_UPDATE = new Order(UUID.fromString("843a81b1-b0fe-4ec4-8505-bcf264fefef1"), Order.OrderStatus.CONFIRMED, new BigDecimal("11.90"));
+    private static final Order ORDER_DELETE = new Order(UUID.fromString("567846ea-114d-43db-a782-ca22e7addc6f"), Order.OrderStatus.IN_PROCESS, new BigDecimal("0.00"));
     private static ConnectionPool connectionManager;
-    private static SushiDao dao;
+    private static OrderDao dao;
 
     @Container
     static final MySQLContainer<?> CONTAINER =
@@ -54,9 +46,8 @@ class SushiDaoImplTest {
             mockedProps.when(PropertiesUtil::getProperties).thenReturn(testDbProps);
             connectionManager = ConnectionPool.getInstance();
         }
-        dao = new SushiDaoImpl();
+        dao = new OrderDaoImpl();
     }
-
     @AfterAll
     static void afterAll() {
         connectionManager.destroyPool();
@@ -71,16 +62,18 @@ class SushiDaoImplTest {
 
         assertTrue(actual.isEmpty());
     }
+    @org.junit.jupiter.api.Order(4)
     @Test
     void findById() throws DaoException {
-        var actual = dao.findById(SUSHI_NO_UPDATE.getId());
+        var actual = dao.findById(ORDER.getId());
 
         assertAll(
                 () -> assertTrue(actual.isPresent()),
-                () -> assertEquals(SUSHI_NO_UPDATE, actual.get())
+                () -> assertEquals(ORDER, actual.get())
         );
     }
-    @Order(3)
+
+    @org.junit.jupiter.api.Order(3)
     @Test
     void findAll() throws DaoException {
         int expectedSize = 4;
@@ -89,65 +82,63 @@ class SushiDaoImplTest {
 
         assertEquals(expectedSize, all.size());
     }
-
-    @Test
-    void findSushiByTypeId() throws DaoException {
-        int expectedSize = 2;
-
-        var all = dao.findSushiByTypeId(SUSHI.getType().getId());
-
-        assertEquals(expectedSize, all.size());
-    }
-
     @Test
     void deleteConstraint() throws DaoException {
-        assertThrows(DaoException.class, ()-> {
-            dao.delete(SUSHI.getId());
-        });
+        var actual = dao.delete(ORDER_UPDATE.getId());
+        OrderComponentDao orderComponentDao = new OrderComponentDaoImpl();
+        var list = orderComponentDao.findAllByOrderId(ORDER_UPDATE.getId());
+        assertAll(
+                () -> assertTrue(actual.isPresent()),
+                () -> assertEquals(ORDER_UPDATE, actual.get()),
+                () -> assertTrue(dao.findById(ORDER_UPDATE.getId()).isEmpty()),
+                () -> assertEquals(0, list.size())
+        );
     }
-    @Order(2)
+    @org.junit.jupiter.api.Order(2)
     @Test
     void delete() throws DaoException {
-        var actual = dao.delete(SUSHI_WITHOUT_ORDERS.getId());
+        var actual = dao.delete(ORDER_DELETE.getId());
 
         assertAll(
                 () -> assertTrue(actual.isPresent()),
-                () -> assertEquals(SUSHI_WITHOUT_ORDERS, actual.get()),
-                () -> assertTrue(dao.findById(SUSHI_WITHOUT_ORDERS.getId()).isEmpty())
+                () -> assertEquals(ORDER_DELETE, actual.get()),
+                () -> assertTrue(dao.findById(ORDER_DELETE.getId()).isEmpty())
         );
     }
+
     @Test
     void deleteAbsent() throws DaoException {
         var actual = dao.delete(UUID.randomUUID());
 
         assertTrue(actual.isEmpty());
     }
-    @Order(1)
+
+    @org.junit.jupiter.api.Order(1)
     @Test
     void create() throws DaoException {
-        var actual = dao.create(SUSHI);
+        var actual = dao.create(ORDER);
 
         assertAll(
-                () -> assertNotEquals(SUSHI.getId(), actual.getId()),
+                () -> assertNotEquals(ORDER.getId(), actual.getId()),
                 () -> assertTrue(dao.findById(actual.getId()).isPresent())
         );
     }
-
+    @org.junit.jupiter.api.Order(5)
     @Test
     void update() throws DaoException {
-        var actual = dao.update(SUSHI_UPDATE);
+        var actual = dao.update(ORDER_UPDATE);
 
         assertAll(
                 () -> assertTrue(actual.isPresent()),
-                () -> assertEquals(SUSHI_UPDATE, actual.get())
+                () -> assertEquals(ORDER_UPDATE, actual.get())
         );
     }
 
     @Test
     void updateAbsent() throws DaoException {
-        Sushi absentUuidSushi = new Sushi();
-        absentUuidSushi.setId(UUID.randomUUID());
-        var actual = dao.update(absentUuidSushi);
+        Order absentUuidOrder = new Order();
+        absentUuidOrder.setId(UUID.randomUUID());
+        var actual = dao.update(absentUuidOrder);
 
         assertTrue(actual.isEmpty());
     }

@@ -97,7 +97,9 @@ public class ConnectionPool implements ConnectionManager {
             } catch (SQLException e) {
             }
         }
-        deregisterDrivers();
+        //deregisterDrivers();
+        instance = null;
+        create.set(false);
     }
 
     private void deregisterDrivers() {
