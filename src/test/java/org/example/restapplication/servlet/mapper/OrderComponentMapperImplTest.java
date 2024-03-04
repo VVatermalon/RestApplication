@@ -31,12 +31,10 @@ class OrderComponentMapperImplTest {
 
     @Test
     void toDto() {
-        List<OrderComponent> components = new ArrayList<>();
         OrderComponent orderComponent = new OrderComponent();
         orderComponent.setAmount(AMOUNT_DEFAULT);
         orderComponent.setSushi(new Sushi(UUID_DEFAULT, NAME_DEFAULT, new SushiType(UUID_DEFAULT, NAME_DEFAULT), PRICE_DEFAULT, DESCRIPTION_DEFAULT));
-        components.add(orderComponent);
-        Order order = new Order(UUID_DEFAULT, Order.OrderStatus.CONFIRMED, BigDecimal.TEN, components);
+        Order order = new Order(UUID_DEFAULT, Order.OrderStatus.CONFIRMED, BigDecimal.TEN);
         orderComponent.setOrder(order);
 
         OrderComponentDto actual = orderComponentMapper.toDto(orderComponent);
@@ -51,8 +49,6 @@ class OrderComponentMapperImplTest {
         assertEquals(UUID_DEFAULT, actual.getOrder().getId());
         assertEquals(Order.OrderStatus.CONFIRMED, actual.getOrder().getStatus());
         assertEquals(BigDecimal.TEN, actual.getOrder().getTotalPrice());
-        assertEquals(actual, actual.getOrder().getComponents().get(0));
-        assertEquals(1, actual.getOrder().getComponents().size());
     }
 
     @Test
@@ -62,12 +58,10 @@ class OrderComponentMapperImplTest {
 
     @Test
     void toOrderComponent() {
-        List<OrderComponentDto> components = new ArrayList<>();
         OrderComponentDto orderComponentDto = new OrderComponentDto();
         orderComponentDto.setAmount(AMOUNT_DEFAULT);
         orderComponentDto.setSushi(new SushiDto(UUID_DEFAULT, NAME_DEFAULT, new SushiTypeDto(UUID_DEFAULT, NAME_DEFAULT), PRICE_DEFAULT, DESCRIPTION_DEFAULT));
-        components.add(orderComponentDto);
-        OrderDto orderDto = new OrderDto(UUID_DEFAULT, Order.OrderStatus.CONFIRMED, BigDecimal.TEN, components);
+        OrderDto orderDto = new OrderDto(UUID_DEFAULT, Order.OrderStatus.CONFIRMED, BigDecimal.TEN, null);
         orderComponentDto.setOrder(orderDto);
 
         OrderComponent actual = orderComponentMapper.toOrderComponent(orderComponentDto);
@@ -82,8 +76,6 @@ class OrderComponentMapperImplTest {
         assertEquals(UUID_DEFAULT, actual.getOrder().getId());
         assertEquals(Order.OrderStatus.CONFIRMED, actual.getOrder().getStatus());
         assertEquals(BigDecimal.TEN, actual.getOrder().getTotalPrice());
-        assertEquals(actual, actual.getOrder().getComponents().get(0));
-        assertEquals(1, actual.getOrder().getComponents().size());
     }
 
     @Test

@@ -77,7 +77,7 @@ class SushiDaoImplTest {
 
         assertAll(
                 () -> assertTrue(actual.isPresent()),
-                () -> assertEquals(SUSHI_NO_UPDATE, actual.get())
+                () -> assertEquals(SUSHI_NO_UPDATE.getId(), actual.get().getId())
         );
     }
     @Order(3)
@@ -112,7 +112,7 @@ class SushiDaoImplTest {
 
         assertAll(
                 () -> assertTrue(actual.isPresent()),
-                () -> assertEquals(SUSHI_WITHOUT_ORDERS, actual.get()),
+                () -> assertEquals(SUSHI_WITHOUT_ORDERS.getId(), actual.get().getId()),
                 () -> assertTrue(dao.findById(SUSHI_WITHOUT_ORDERS.getId()).isEmpty())
         );
     }

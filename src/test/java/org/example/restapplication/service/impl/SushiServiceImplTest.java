@@ -53,6 +53,14 @@ class SushiServiceImplTest {
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_DTO_OPTIONAL_DEFAULT, actual);
     }
+    @Test
+    void findByIdServiceException() throws DaoException {
+        when(sushiDao.findById(UUID_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.findById(UUID_DEFAULT);
+        });
+    }
+
 
     @Test
     void findAll() throws DaoException, ServiceException {
@@ -66,6 +74,13 @@ class SushiServiceImplTest {
         verify(mapper, times(1)).toDto(SUSHI_DEFAULT);
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_DTO_LIST_DEFAULT, actual);
+    }
+    @Test
+    void findAllServiceException() throws DaoException {
+        when(sushiDao.findAll()).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.findAll();
+        });
     }
 
     @Test
@@ -84,6 +99,15 @@ class SushiServiceImplTest {
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_DTO_DEFAULT, actual);
     }
+    @Test
+    void createServiceException() throws DaoException {
+        SUSHI_DTO_DEFAULT.setId(null);
+        when(mapper.toSushi(SUSHI_DTO_DEFAULT)).thenReturn(SUSHI_DEFAULT);
+        when(sushiDao.create(SUSHI_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.create(SUSHI_DTO_DEFAULT);
+        });
+    }
 
     @Test
     void update() throws ServiceException, DaoException {
@@ -101,6 +125,15 @@ class SushiServiceImplTest {
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_DTO_DEFAULT, actual.orElse(null));
     }
+    @Test
+    void updateServiceException() throws DaoException {
+        SUSHI_DTO_DEFAULT.setId(UUID_DEFAULT);
+        when(mapper.toSushi(SUSHI_DTO_DEFAULT)).thenReturn(SUSHI_DEFAULT);
+        when(sushiDao.update(SUSHI_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.update(SUSHI_DTO_DEFAULT);
+        });
+    }
 
     @Test
     void delete() throws DaoException, ServiceException {
@@ -115,6 +148,13 @@ class SushiServiceImplTest {
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_DTO_OPTIONAL_DEFAULT, actual);
     }
+    @Test
+    void deleteServiceException() throws DaoException {
+        when(sushiDao.delete(UUID_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.delete(UUID_DEFAULT);
+        });
+    }
 
     @Test
     void findByType() throws DaoException, ServiceException {
@@ -128,5 +168,12 @@ class SushiServiceImplTest {
         verify(mapper, times(SUSHI_LIST_DEFAULT.size())).toDto(SUSHI_DEFAULT);
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_DTO_LIST_DEFAULT, actual);
+    }
+    @Test
+    void findByTypeServiceException() throws DaoException {
+        when(sushiDao.findSushiByTypeId(UUID_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.findByType(UUID_DEFAULT);
+        });
     }
 }

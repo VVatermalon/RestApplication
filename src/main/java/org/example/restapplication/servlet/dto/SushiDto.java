@@ -2,10 +2,12 @@ package org.example.restapplication.servlet.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.restapplication.model.Order;
 import org.example.restapplication.model.SushiType;
 import org.example.restapplication.servlet.mapper.SushiTypeMapper;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 public final class SushiDto {
@@ -14,7 +16,16 @@ public final class SushiDto {
     private SushiTypeDto type;
     private BigDecimal price;
     private String description;
+    private List<Order> orders;
 
+    public SushiDto(UUID id, String name, SushiTypeDto type, BigDecimal price, String description, List<Order> orders) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.price = price;
+        this.description = description;
+        this.orders = orders;
+    }
     public SushiDto(UUID id, String name, SushiTypeDto type, BigDecimal price, String description) {
         this.id = id;
         this.name = name;
@@ -72,5 +83,13 @@ public final class SushiDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }

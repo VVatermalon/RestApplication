@@ -13,7 +13,6 @@ import java.util.UUID;
 
 public class OrderComponentDto {
     private UUID id;
-    @JsonBackReference
     private OrderDto order;
     private SushiDto sushi;
     private int amount;

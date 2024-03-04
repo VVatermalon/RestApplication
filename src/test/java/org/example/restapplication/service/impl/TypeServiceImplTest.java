@@ -54,6 +54,13 @@ class TypeServiceImplTest {
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_TYPE_DTO_OPTIONAL_DEFAULT, actual);
     }
+    @Test
+    void findByIdServiceException() throws DaoException {
+        when(sushiTypeDao.findById(UUID_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.findById(UUID_DEFAULT);
+        });
+    }
 
     @Test
     void findAll() throws DaoException, ServiceException {
@@ -67,6 +74,13 @@ class TypeServiceImplTest {
         verify(mapper, times(SUSHI_TYPE_LIST_DEFAULT.size())).toDto(SUSHI_TYPE_DEFAULT);
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_TYPE_DTO_LIST_DEFAULT, actual);
+    }
+    @Test
+    void findAllServiceException() throws DaoException {
+        when(sushiTypeDao.findAll()).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.findAll();
+        });
     }
 
     @Test
@@ -84,6 +98,14 @@ class TypeServiceImplTest {
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_TYPE_DTO_DEFAULT, actual);
     }
+    @Test
+    void createServiceException() throws DaoException {
+        when(mapper.toSushiType(SUSHI_TYPE_DTO_DEFAULT)).thenReturn(SUSHI_TYPE_DEFAULT);
+        when(sushiTypeDao.create(SUSHI_TYPE_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.create(SUSHI_TYPE_DTO_DEFAULT);
+        });
+    }
 
     @Test
     void update() throws DaoException, ServiceException {
@@ -100,6 +122,14 @@ class TypeServiceImplTest {
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_TYPE_DTO_OPTIONAL_DEFAULT, actual);
     }
+    @Test
+    void updateServiceException() throws DaoException {
+        when(mapper.toSushiType(SUSHI_TYPE_DTO_DEFAULT)).thenReturn(SUSHI_TYPE_DEFAULT);
+        when(sushiTypeDao.update(SUSHI_TYPE_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.update(SUSHI_TYPE_DTO_DEFAULT);
+        });
+    }
 
     @Test
     void delete() throws DaoException, ServiceException {
@@ -113,5 +143,12 @@ class TypeServiceImplTest {
         verify(mapper, times(1)).toDto(SUSHI_TYPE_DEFAULT);
         verifyNoMoreInteractions(mapper);
         assertEquals(SUSHI_TYPE_DTO_OPTIONAL_DEFAULT, actual);
+    }
+    @Test
+    void deleteServiceException() throws DaoException {
+        when(sushiTypeDao.delete(UUID_DEFAULT)).thenThrow(new DaoException());
+        assertThrows(ServiceException.class, () -> {
+            service.delete(UUID_DEFAULT);
+        });
     }
 }

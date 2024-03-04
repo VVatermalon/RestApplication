@@ -16,15 +16,15 @@ public class Order extends SimpleEntity{
     }
     private OrderStatus status;
     private BigDecimal totalPrice;
-    private List<OrderComponent> components;
+    private List<Sushi> components;
 
-    public Order(OrderStatus status, BigDecimal totalPrice, List<OrderComponent> components) {
+    public Order(OrderStatus status, BigDecimal totalPrice, List<Sushi> components) {
         this.status = status;
         this.totalPrice = totalPrice;
         this.components = components;
     }
 
-    public Order(UUID id, OrderStatus status, BigDecimal totalPrice, List<OrderComponent> components) {
+    public Order(UUID id, OrderStatus status, BigDecimal totalPrice, List<Sushi> components) {
         super(id);
         this.status = status;
         this.totalPrice = totalPrice;
@@ -61,11 +61,11 @@ public class Order extends SimpleEntity{
         this.totalPrice = totalPrice;
     }
 
-    public List<OrderComponent> getComponents() {
+    public List<Sushi> getComponents() {
         return components;
     }
 
-    public void setComponents(List<OrderComponent> components) {
+    public void setComponents(List<Sushi> components) {
         this.components = components;
     }
 

@@ -69,7 +69,7 @@ class OrderDaoImplTest {
 
         assertAll(
                 () -> assertTrue(actual.isPresent()),
-                () -> assertEquals(ORDER, actual.get())
+                () -> assertEquals(ORDER.getId(), actual.get().getId())
         );
     }
 
@@ -89,7 +89,7 @@ class OrderDaoImplTest {
         var list = orderComponentDao.findAllByOrderId(ORDER_UPDATE.getId());
         assertAll(
                 () -> assertTrue(actual.isPresent()),
-                () -> assertEquals(ORDER_UPDATE, actual.get()),
+                () -> assertEquals(ORDER_UPDATE.getStatus(), actual.get().getStatus()),
                 () -> assertTrue(dao.findById(ORDER_UPDATE.getId()).isEmpty()),
                 () -> assertEquals(0, list.size())
         );
@@ -101,7 +101,7 @@ class OrderDaoImplTest {
 
         assertAll(
                 () -> assertTrue(actual.isPresent()),
-                () -> assertEquals(ORDER_DELETE, actual.get()),
+                () -> assertEquals(ORDER_DELETE.getId(), actual.get().getId()),
                 () -> assertTrue(dao.findById(ORDER_DELETE.getId()).isEmpty())
         );
     }

@@ -13,19 +13,6 @@ import java.util.List;
 import java.util.UUID;
 @Mapper
 public interface OrderMapper {
-
-    //    public OrderDto toDto(Order order) {
-//        UUID id = order.getId();
-//        Order.OrderStatus status = order.getStatus();
-//        BigDecimal price = order.getTotalPrice();
-//        var components = order.getComponents();
-//
-//        return new OrderDto(id, status, price, components);
-//    }
-//
-//    public Order toOrder(OrderDto orderDto) {
-//        return new Order(orderDto.getId(), orderDto.getStatus());
-//    }
     OrderDto toDto(Order order,
                    @Context CycleAvoidingMappingContext cycleAvoidingMappingContext);
 

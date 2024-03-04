@@ -5,11 +5,12 @@ import org.example.restapplication.dao.OrderComponentDao;
 import org.example.restapplication.dao.OrderDao;
 import org.example.restapplication.dao.mapper.SimpleResultSetMapper;
 import org.example.restapplication.dao.mapper.impl.OrderMapperImpl;
+import org.example.restapplication.dao.mapper.impl.SushiMapperImpl;
 import org.example.restapplication.db.ConnectionManager;
 import org.example.restapplication.db.ConnectionPool;
 import org.example.restapplication.exception.DaoException;
 import org.example.restapplication.model.Order;
-import org.example.restapplication.model.OrderComponent;
+import org.example.restapplication.model.Sushi;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -19,6 +20,11 @@ public class OrderDaoImpl extends OrderDao {
     private static final String SQL_SELECT_ALL_ORDERS = """
     SELECT order_id, status, total_price
     FROM orders""";
+    private static final String SQL_SELECT_SUSHI_BY_ORDER_ID = """
+    SELECT S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name
+    FROM sushi S JOIN sushi_type T ON S.type_id = T.type_id
+    JOIN order_component C ON C.sushi_id = S.sushi_id
+    WHERE C.order_id = ?""";
     private static final String SQL_SELECT_ORDER_BY_ID = """
     SELECT order_id, status, total_price FROM orders
     WHERE order_id = ?""";
@@ -29,8 +35,8 @@ public class OrderDaoImpl extends OrderDao {
     private static final String SQL_UPDATE = """
     UPDATE orders SET status = ? WHERE order_id = ?""";
     private final ConnectionManager manager = ConnectionPool.getInstance();
-    private final OrderComponentDao orderComponentDao = new OrderComponentDaoImpl();
     private static final SimpleResultSetMapper<Order> mapper = OrderMapperImpl.INSTANCE;
+    private static final SimpleResultSetMapper<Sushi> sushiMapper = SushiMapperImpl.INSTANCE;
 
     @Override
     public Optional<Order> findById(UUID id) throws DaoException {
@@ -42,6 +48,7 @@ public class OrderDaoImpl extends OrderDao {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
                         Order order = mapper.map(resultSet);
+                        order.setComponents(findAllSushiByOrderId(connection, id));
                         return Optional.of(order);
                     }
                 }
@@ -64,6 +71,7 @@ public class OrderDaoImpl extends OrderDao {
                  ResultSet resultSet = statement.executeQuery(SQL_SELECT_ALL_ORDERS)) {
                 while (resultSet.next()) {
                     Order order = mapper.map(resultSet);
+                    order.setComponents(findAllSushiByOrderId(connection, order.getId()));
                     orderList.add(order);
                 }
                 return orderList;
@@ -83,16 +91,12 @@ public class OrderDaoImpl extends OrderDao {
         Connection connection = null;
         try {
             connection = manager.getConnection();
-            connection.setAutoCommit(false);
-            orderComponentDao.deleteAllOrderComponents(connection, id);
             try (PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
                 statement.setString(1, id.toString());
                 if (statement.executeUpdate() == 0) {
-                    ConnectionUtil.rollback(connection);
                     throw new DaoException();
                 }
             }
-            ConnectionUtil.commit(connection);
             return order;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -144,5 +148,18 @@ public class OrderDaoImpl extends OrderDao {
             ConnectionUtil.close(connection);
         }
         return Optional.of(entity);
+    }
+    private List<Sushi> findAllSushiByOrderId(Connection connection, UUID id) throws DaoException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_SUSHI_BY_ORDER_ID)) {
+            preparedStatement.setString(1, id.toString());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<Sushi> sushi = new ArrayList<>();
+            while (resultSet.next()) {
+                sushi.add(sushiMapper.map(resultSet));
+            }
+            return sushi;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 }

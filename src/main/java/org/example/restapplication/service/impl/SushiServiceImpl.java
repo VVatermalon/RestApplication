@@ -6,6 +6,8 @@ import org.example.restapplication.model.*;
 import org.example.restapplication.dao.SushiDao;
 import org.example.restapplication.dao.impl.SushiDaoImpl;
 import org.example.restapplication.service.SushiService;
+import org.example.restapplication.servlet.dto.OrderComponentDto;
+import org.example.restapplication.servlet.dto.OrderDto;
 import org.example.restapplication.servlet.dto.SushiDto;
 import org.example.restapplication.servlet.mapper.SushiMapper;
 import org.mapstruct.factory.Mappers;

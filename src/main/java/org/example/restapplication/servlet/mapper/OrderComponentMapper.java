@@ -15,18 +15,6 @@ import java.util.List;
 import java.util.UUID;
 @Mapper
 public interface OrderComponentMapper {
-
-    //    public OrderComponentDto toDto(OrderComponent orderComponent) {
-//        Order order = orderComponent.getOrder();
-//        Sushi sushi = orderComponent.getSushi();
-//        int amount = orderComponent.getAmount();
-//
-//        return new OrderComponentDto(order, sushi, amount);
-//    }
-//
-//    public OrderComponent toOrderComponent(OrderComponentDto orderComponentDto) {
-//        return new OrderComponent(orderComponentDto.getOrder(), orderComponentDto.getSushi(), orderComponentDto.getAmount());
-//    }
     OrderComponentDto toDto(OrderComponent orderComponent, @Context CycleAvoidingMappingContext cycleAvoidingMappingContext);
     @DoIgnore
     default OrderComponentDto toDto(OrderComponent orderComponent) {

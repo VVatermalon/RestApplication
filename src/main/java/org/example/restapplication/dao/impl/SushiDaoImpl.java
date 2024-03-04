@@ -2,10 +2,12 @@ package org.example.restapplication.dao.impl;
 
 import org.example.restapplication.dao.ConnectionUtil;
 import org.example.restapplication.dao.mapper.SimpleResultSetMapper;
+import org.example.restapplication.dao.mapper.impl.OrderMapperImpl;
 import org.example.restapplication.dao.mapper.impl.SushiMapperImpl;
 import org.example.restapplication.db.ConnectionManager;
 import org.example.restapplication.db.ConnectionPool;
 import org.example.restapplication.exception.DaoException;
+import org.example.restapplication.model.Order;
 import org.example.restapplication.model.Sushi;
 import org.example.restapplication.dao.SushiDao;
 
@@ -16,6 +18,11 @@ public class SushiDaoImpl extends SushiDao {
     private static final String SQL_SELECT_ALL_SUSHI = """
     SELECT S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name
     FROM sushi S JOIN sushi_type T ON S.type_id = T.type_id""";
+    private static final String SQL_SELECT_ORDER_BY_SUSHI_ID = """
+    SELECT O.order_id, O.status, O.total_price
+    FROM orders O JOIN order_component C ON O.order_id=C.order_id
+    JOIN sushi S ON C.sushi_id=S.sushi_id
+    WHERE S.sushi_id = ?""";
     private static final String SQL_SELECT_SUSHI_BY_ID = """
     SELECT S.sushi_id, S.sushi_name, S.price, S.description, T.type_id, T.type_name
     FROM sushi S JOIN sushi_type T ON S.type_id = T.type_id
@@ -32,6 +39,7 @@ public class SushiDaoImpl extends SushiDao {
         UPDATE sushi SET sushi_name = ?, price = ?, description = ?, type_id = ? WHERE sushi_id = ?""";
     private final ConnectionManager manager = ConnectionPool.getInstance();
     private static final SimpleResultSetMapper<Sushi> mapper = SushiMapperImpl.INSTANCE;
+    private static final SimpleResultSetMapper<Order> orderMapper = OrderMapperImpl.INSTANCE;
     @Override
     public Optional<Sushi> findById(UUID id) throws DaoException {
         Connection connection = null;
@@ -42,6 +50,7 @@ public class SushiDaoImpl extends SushiDao {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
                         Sushi sushi = mapper.map(resultSet);
+                        sushi.setOrders(findAllOrdersBySushiId(connection, id));
                         return Optional.of(sushi);
                     }
                 }
@@ -64,6 +73,7 @@ public class SushiDaoImpl extends SushiDao {
                  ResultSet resultSet = statement.executeQuery(SQL_SELECT_ALL_SUSHI)) {
                 while (resultSet.next()) {
                     Sushi sushi = mapper.map(resultSet);
+                    sushi.setOrders(findAllOrdersBySushiId(connection, sushi.getId()));
                     sushiList.add(sushi);
                 }
                 return sushiList;
@@ -85,6 +95,7 @@ public class SushiDaoImpl extends SushiDao {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         Sushi sushi = mapper.map(resultSet);
+                        sushi.setOrders(findAllOrdersBySushiId(connection, id));
                         sushiList.add(sushi);
                     }
                 }
@@ -167,5 +178,18 @@ public class SushiDaoImpl extends SushiDao {
             ConnectionUtil.close(connection);
         }
         return Optional.of(entity);
+    }
+    private List<Order> findAllOrdersBySushiId(Connection connection, UUID id) throws DaoException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_ORDER_BY_SUSHI_ID)) {
+            preparedStatement.setString(1, id.toString());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<Order> orders = new ArrayList<>();
+            while (resultSet.next()) {
+                orders.add(orderMapper.map(resultSet));
+            }
+            return orders;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 }

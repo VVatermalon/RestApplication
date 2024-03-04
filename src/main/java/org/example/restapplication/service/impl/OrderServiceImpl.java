@@ -20,18 +20,14 @@ import java.util.UUID;
 
 public class OrderServiceImpl implements OrderService {
     private final OrderDao orderDao;
-
-    private final OrderComponentService orderComponentService;
     private final OrderMapper mapper;
 
-    public OrderServiceImpl(OrderDao orderDao, OrderComponentService orderComponentService, OrderMapper mapper) {
+    public OrderServiceImpl(OrderDao orderDao, OrderMapper mapper) {
         this.orderDao = orderDao;
-        this.orderComponentService = orderComponentService;
         this.mapper = mapper;
     }
 
     public OrderServiceImpl() {
-        this.orderComponentService = new OrderComponentServiceImpl();
         this.orderDao = new OrderDaoImpl();
         this.mapper = Mappers.getMapper(OrderMapper.class);
     }
@@ -42,11 +38,7 @@ public class OrderServiceImpl implements OrderService {
             Optional<Order> found = orderDao.findById(id);
             if (found.isEmpty())
                 return Optional.empty();
-            Order order = found.get();
-            List<OrderComponentDto> orderComponents = orderComponentService.findAllOrderComponents(order.getId());
-            var orderDto = found.map(mapper::toDto);
-            orderDto.get().setComponents(orderComponents);
-            return orderDto;
+            return found.map(mapper::toDto);
         } catch (DaoException e) {
             throw new ServiceException(e);
         }
@@ -56,12 +48,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDto> findAll() throws ServiceException {
         try {
             List<Order> orders = orderDao.findAll();
-            var orderDtos = orders.stream().map(mapper::toDto).toList();
-            for (OrderDto dto : orderDtos) {
-                List<OrderComponentDto> orderComponents = orderComponentService.findAllOrderComponents(dto.getId());
-                dto.setComponents(orderComponents);
-            }
-            return orderDtos;
+            return orders.stream().map(mapper::toDto).toList();
         } catch (DaoException e) {
             throw new ServiceException(e);
         }

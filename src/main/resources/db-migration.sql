@@ -24,7 +24,7 @@ create table order_component (
                                  order_id char(36),
                                  sushi_id char(36),
                                  amount int,
-                                 foreign key (order_id) references orders(order_id),
+                                 foreign key (order_id) references orders(order_id) on delete cascade,
                                  foreign key (sushi_id) references sushi(sushi_id),
                                  PRIMARY KEY (order_id, sushi_id));
 
